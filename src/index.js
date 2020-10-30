@@ -15,6 +15,14 @@ class MagentoSource {
 
     constructor(api, options) {
         this.#magentoClient = new Magento2RestClient(options);
+        this.#magentoClient.addMethods('categories', function (restClient) {
+                let module = {};
+                module.getCategory = function (categoryId) {
+                    return restClient.get(`/categories/${categoryId}`);
+                }
+                return module;
+            }
+        )
 
         api.loadSource(async actions => {
             await this.loadCategories(actions);
@@ -26,7 +34,13 @@ class MagentoSource {
         const categories = await this.#magentoClient.categories.list();
         const collection = actions.addCollection({typeName: "Categories"});
         for (const category of categories.children_data) {
-            collection.addNode(category);
+            const category1 = await this.#magentoClient.categories.getCategory(category.id);
+            const node = {
+                ...category1,
+                path: "/category/" + category1.custom_attributes
+                    .find(customAttribute => customAttribute.attribute_code === "url_key").value
+            }
+            collection.addNode(node);
         }
     }
 

@@ -7,8 +7,6 @@ services:
       - MARIADB_USER=bn_magento
       - MARIADB_PASSWORD=magento_db_password
       - MARIADB_DATABASE=bitnami_magento
-    volumes:
-      - 'mariadb_data:/bitnami'
   magento:
     image: 'docker.io/bitnami/magento:2-debian-10'
     environment:
@@ -22,20 +20,9 @@ services:
     ports:
       - '80:80'
       - '443:443'
-    volumes:
-      - 'magento_data:/bitnami'
     depends_on:
       - mariadb
       - elasticsearch
   elasticsearch:
     image: 'docker.io/bitnami/elasticsearch:6-debian-10'
     restart: always
-    volumes:
-      - 'elasticsearch_data:/bitnami/elasticsearch/data'
-volumes:
-  elasticsearch_data:
-    driver: local
-  mariadb_data:
-    driver: local
-  magento_data:
-    driver: local
